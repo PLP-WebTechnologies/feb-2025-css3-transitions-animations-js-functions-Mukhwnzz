@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Animations with Local Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Button with transition and animation */
+        .action-btn {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Animation for the button */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse-animation {
+            animation: pulse 1s infinite;
+        }
+
+        /* Image styling and animation */
+        .animated-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spin-animation {
+            animation: spin 2s linear infinite;
+        }
+
+        /* Theme switcher */
+        .theme-switcher {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Preferences panel */
+        .preferences {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive Animations</h1>
+        
+        <div class="theme-switcher">
+            <button class="theme-btn" data-theme="light">Light Theme</button>
+            <button class="theme-btn" data-theme="dark">Dark Theme</button>
+            <button class="theme-btn" data-theme="blue">Blue Theme</button>
+        </div>
+        
+        <button id="animateBtn" class="action-btn">Click to Animate</button>
+        
+        <img src="https://i.pinimg.com/736x/bb/c2/74/bbc27416dabe47665b32b4098af3de98.jpg" alt="Animated Image" class="animated-image" id="mainImage">
+        
+        <div class="preferences">
+            <h2>Your Preferences</h2>
+            <p>Selected Theme: <span id="currentTheme">light</span></p>
+            <p>Animation Count: <span id="animationCount">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const animateBtn = document.getElementById('animateBtn');
+        const mainImage = document.getElementById('mainImage');
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        const currentThemeSpan = document.getElementById('currentTheme');
+        const animationCountSpan = document.getElementById('animationCount');
+        const body = document.body;
+
+        // Initialize from localStorage
+        function initializePreferences() {
+            // Get theme preference or default to light
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+            
+            // Get animation count or default to 0
+            const savedCount = localStorage.getItem('animationCount') || 0;
+            animationCountSpan.textContent = savedCount;
+        }
+
+        // Apply theme and save to localStorage
+        function applyTheme(theme) {
+            // Remove all theme classes first
+            body.className = '';
+            
+            // Apply selected theme
+            body.classList.add(`${theme}-theme`);
+            currentThemeSpan.textContent = theme;
+            
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            
+            // Add specific background colors for themes
+            switch(theme) {
+                case 'dark':
+                    body.style.backgroundColor = '#333';
+                    body.style.color = '#fff';
+                    break;
+                case 'blue':
+                    body.style.backgroundColor = '#e6f2ff';
+                    body.style.color = '#003366';
+                    break;
+                default: // light
+                    body.style.backgroundColor = '#f5f5f5';
+                    body.style.color = '#333';
+            }
+        }
+
+        // Handle image animation
+        function animateImage() {
+            // Toggle spin animation
+            mainImage.classList.toggle('spin-animation');
+            
+            // Update and save animation count
+            let count = parseInt(localStorage.getItem('animationCount')) || 0;
+            count++;
+            localStorage.setItem('animationCount', count);
+            animationCountSpan.textContent = count;
+            
+            // Add pulse animation to button temporarily
+            animateBtn.classList.add('pulse-animation');
+            setTimeout(() => {
+                animateBtn.classList.remove('pulse-animation');
+            }, 1000);
+        }
+
+        // Event Listeners
+        animateBtn.addEventListener('click', animateImage);
+        
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                applyTheme(theme);
+            });
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', initializePreferences);
+    </script>
+</body>
+</html>
